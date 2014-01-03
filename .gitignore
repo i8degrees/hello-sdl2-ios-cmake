@@ -1,1 +1,5 @@
-xcode/*
+# CMake
+build
+
+# Do *not* ignore static libraries
+!*.a

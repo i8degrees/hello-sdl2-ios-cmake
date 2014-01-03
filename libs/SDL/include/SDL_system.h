@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2012 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2013 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -21,7 +21,7 @@
 
 /**
  *  \file SDL_system.h
- *  
+ *
  *  Include file for platform specific SDL API functions
  */
 
@@ -29,19 +29,34 @@
 #define _SDL_system_h
 
 #include "SDL_stdinc.h"
-
-#if defined(__IPHONEOS__) && __IPHONEOS__
-#include "SDL_video.h"
 #include "SDL_keyboard.h"
-#endif
+#include "SDL_render.h"
+#include "SDL_video.h"
 
 #include "begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
-/* *INDENT-OFF* */
 extern "C" {
-/* *INDENT-ON* */
 #endif
+
+
+/* Platform specific functions for Windows */
+#ifdef __WIN32__
+
+/* Returns the D3D9 adapter index that matches the specified display index.
+   This adapter index can be passed to IDirect3D9::CreateDevice and controls
+   on which monitor a full screen application will appear.
+*/
+extern DECLSPEC int SDLCALL SDL_Direct3D9GetAdapterIndex( int displayIndex );
+
+/* Returns the D3D device associated with a renderer, or NULL if it's not a D3D renderer.
+   Once you are done using the device, you should release it to avoid a resource leak.
+ */
+typedef struct IDirect3DDevice9 IDirect3DDevice9;
+extern DECLSPEC IDirect3DDevice9* SDLCALL SDL_RenderGetD3D9Device(SDL_Renderer * renderer);
+
+#endif /* __WIN32__ */
+
 
 /* Platform specific functions for iOS */
 #if defined(__IPHONEOS__) && __IPHONEOS__
@@ -62,6 +77,9 @@ extern DECLSPEC void * SDLCALL SDL_AndroidGetJNIEnv();
 
 /* Get the SDL Activity object for the application
    This returns jobject, but the prototype is void* so we don't need jni.h
+   The jobject returned by SDL_AndroidGetActivity is a local reference.
+   It is the caller's responsibility to properly release it
+   (using env->Push/PopLocalFrame or manually with env->DeleteLocalRef)
  */
 extern DECLSPEC void * SDLCALL SDL_AndroidGetActivity();
 
@@ -92,12 +110,9 @@ extern DECLSPEC const char * SDLCALL SDL_AndroidGetExternalStoragePath();
 
 #endif /* __ANDROID__ */
 
-
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
-/* *INDENT-OFF* */
 }
-/* *INDENT-ON* */
 #endif
 #include "close_code.h"
 

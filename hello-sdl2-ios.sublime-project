@@ -2,9 +2,12 @@
 	"folders":
 	[
 		{
-			"path": "src"
+			"name": "source",
+            "path": "src"
 		},
+
 		{
+            "name": "cmake",
 			"path": "cmake"
 		}
 	]

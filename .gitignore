@@ -1,5 +1,13 @@
 # CMake
-build
+build*
+
+third-party/windows
+third-party/osx
+third-party/ios
+third-party/linux
+
 
 # Do *not* ignore static libraries
 !*.a
+
+.cmake.sh

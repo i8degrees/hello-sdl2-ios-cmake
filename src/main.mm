@@ -5,8 +5,6 @@
 //
 
 #include <iostream>
-//#include <cstdio>
-//#include <cstdlib>
 #include <stdbool.h>
 
 #include "SDL.h"
@@ -39,12 +37,14 @@ int main(int argc, char * argv[])
   }
   atexit ( SDL_Quit );
 
-  if ( IMG_Init ( IMG_INIT_PNG ) != IMG_INIT_PNG )
-  {
-    std::cout << "\n" << IMG_GetError() << "\n";
-    exit ( -1 );
-  }
-  atexit ( IMG_Quit );
+  // FIXME: See notes in CMakeLists.txt
+  //
+  // if ( IMG_Init ( IMG_INIT_PNG ) != IMG_INIT_PNG )
+  // {
+  //   std::cout << "\n" << IMG_GetError() << "\n";
+  //   exit ( -1 );
+  // }
+  // atexit ( IMG_Quit );
 
   if ( TTF_Init () == -1 )
   {

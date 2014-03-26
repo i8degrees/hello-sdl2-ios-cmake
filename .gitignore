@@ -1,13 +1,12 @@
-# CMake
+# CMake build dirs
 build*
 
+# Auto-generated files from CMake
+src/platforms.hpp
+
+# External dependencies
 third-party/windows
 third-party/osx
 third-party/ios
 third-party/linux
 
-
-# Do *not* ignore static libraries
-!*.a
-
-#.cmake.sh

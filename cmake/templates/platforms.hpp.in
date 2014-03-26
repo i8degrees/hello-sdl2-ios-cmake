@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #define NOM_PLATFORM_OSX
   #define NOM_PLATFORM_POSIX // Assume POSIX-compliant Unix
 
-/* #undef NOM_BUILD_IOS */
+  #cmakedefine NOM_BUILD_IOS
 
   #if defined( NOM_BUILD_IOS )
     #define NOM_PLATFORM_IOS

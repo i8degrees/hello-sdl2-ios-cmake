@@ -13,6 +13,8 @@
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 
+#include "platforms.hpp"
+
 static bool gpause = false;
 
 static const int screen_width = 320;
@@ -51,9 +53,21 @@ int main(int argc, char * argv[])
   }
   atexit ( TTF_Quit );
 
-  // Hide the status bar
-  win = SDL_CreateWindow ( NULL, 0, 0, 0, 0,
-                          SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS );
+  #if defined( NOM_PLATFORM_IOS ) // Hide the status bar
+    win = SDL_CreateWindow  ( NULL, 0, 0, 0, 0,
+                              SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS
+                            );
+  #elif defined( NOM_PLATFORM_OSX ) // Create a window that mimics iPhone 4s'
+                                    // native resolution.
+    win = SDL_CreateWindow  ( "SDL2 OS X & iOS app",
+                              SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_UNDEFINED,
+                              960,  // width
+                              640,  // height
+                              SDL_WINDOW_SHOWN
+                            );
+  #endif
+
   if ( !win )
   {
     printf ( "Error: %s\n", SDL_GetError() );

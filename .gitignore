@@ -10,4 +10,4 @@ third-party/linux
 # Do *not* ignore static libraries
 !*.a
 
-.cmake.sh
+#.cmake.sh

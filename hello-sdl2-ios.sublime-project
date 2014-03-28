@@ -9,6 +9,11 @@
 		{
             "name": "cmake",
 			"path": "cmake"
+		},
+
+		{
+            "name": "docs",
+			"path": "."
 		}
 	]
 }

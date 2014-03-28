@@ -170,8 +170,34 @@ elseif( NOM_BUILD_OSX )
   # TODO
 endif( NOM_BUILD_IOS )
 
+SET_SOURCE_FILES_PROPERTIES (
+                              ${PROJECT_NAME}
+                              ${PROJECT_SOURCE_DIR}/Resources/board.png
+                              ${PROJECT_SOURCE_DIR}/Resources/board.bmp
+                              PROPERTIES
+                              MACOSX_PACKAGE_LOCATION Resources
+                            )
+
+SET_SOURCE_FILES_PROPERTIES (
+                              ${PROJECT_NAME}
+                              ${PROJECT_SOURCE_DIR}/Resources/arial.ttf
+                              PROPERTIES
+                              MACOSX_PACKAGE_LOCATION Resources
+                            )
+
+# FIXME: Our resource files are being put in the root of our app bundle, instead
+# of in the Resources folder of the bundle (as expected). The same script used
+# here copied over into TTcards works as intended. No idea why yet...
+
+# SET(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_BINARY_DIR}/build")
+# file( MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/Debug-iphoneos/${PROJECT_NAME}.app/${RESOURCES_DIR} )
+# file( MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/Debug-iphonesimulator/${PROJECT_NAME}.app/${RESOURCES_DIR} )
+
 add_executable  ( ${PROJECT_NAME}
                   MACOSX_BUNDLE
+                  ${PROJECT_SOURCE_DIR}/Resources/board.png
+                  ${PROJECT_SOURCE_DIR}/Resources/board.bmp
+                  ${PROJECT_SOURCE_DIR}/Resources/arial.ttf
                   ${HEADERS}
                   ${SOURCES}
                 )

@@ -1,12 +1,7 @@
 # This template derives from https://github.com/nddrylliog/hello-sdl2-ios6
 #
-# To build project from command line using the XCode project file generated with
-# this CMake build script:
-#
-#     xcodebuild -configuration Debug -sdk iphonesimulator7.1 -arch i386 build
-#     xcodebuild -configuration Debug -sdk iphoneos7.1 build
-#
-# See also: .cmake.sh script in this project's root directory
+# See also: dist dir of this project for additional helper build scripts
+
 cmake_minimum_required( VERSION 2.8 )
 
 # CMake Environment
@@ -60,15 +55,6 @@ option( NOM_BUILD_IOS "Toggle building for the iOS platform" on )
     ELSE()
       MESSAGE( FATAL_ERROR "Error: iOS SDK ${SDKVER} not found at: ${SDKROOT}" )
     ENDIF()
-
-    # FIXME: Verify if this setting is necessary. It was added in order to fix
-    # linking errors complaining about not being able to find UIKit & OpenGLES.
-    #
-    # We may be able to remove adding a framework search path by fixing the
-    # issue with CMAKE_OSX_SYSROOT.
-    #
-    # See also: FIXME note regarding CMAKE_OSX_SYSROOT.
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F /Applications/Developer/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks" )
 
   elseif( NOM_BUILD_OSX )
     set( SDKVER "10.8" ) # FIXME: This should be OS X v10.7

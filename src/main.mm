@@ -147,7 +147,9 @@ int main(int argc, char * argv[])
     win = SDL_CreateWindow  (
                               // NULL, 0, 0, 0, 0,
                              NULL, 0, 0, 0, 0,
-                              SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS
+                              SDL_WINDOW_SHOWN |
+                              SDL_WINDOW_BORDERLESS | // Do not show status bar
+                              SDL_WINDOW_RESIZABLE    // Allow landscape mode
                             );
 
   #elif defined( NOM_PLATFORM_OSX ) // Create a window that mimics iPhone 4s'
@@ -170,6 +172,8 @@ int main(int argc, char * argv[])
   // iPhone 4s Portrait mode: 640x960
   // iPhone 4s Landscape mode: 960x640
   SDL_GetWindowSize ( win, &w_size.x, &w_size.y );
+  NOM_DUMP( w_size.x );
+  NOM_DUMP( w_size.y );
 
   renderer = SDL_CreateRenderer(win,-1,0);
 
@@ -187,6 +191,12 @@ int main(int argc, char * argv[])
   rect2.y = 128;
   rect2.w = 128;
   rect2.h = 128;
+
+  if ( SDL_RenderSetLogicalSize ( renderer, 960, 640 ) != 0 )
+  {
+    NOM_LOG_ERR( NOM, SDL_GetError() );
+    return NO;
+  }
 
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF );
@@ -246,12 +256,6 @@ int main(int argc, char * argv[])
   board_bounds.w = 768;
   board_bounds.h = 448;
 
-  // if ( SDL_RenderSetLogicalSize ( renderer, 640, 960 ) != 0 )
-  // {
-  //   NOM_LOG_ERR( NOM, SDL_GetError() );
-    // return NO;
-  // }
-
   SDL_Texture* bmp_tex = SDL_CreateTextureFromSurface(renderer, img );
   SDL_FreeSurface( img );
 
@@ -268,6 +272,38 @@ int main(int argc, char * argv[])
           running = false;
           break;
         }
+
+        case SDL_WINDOWEVENT:
+        {
+          switch( event.window.event )
+          {
+
+            default:
+            case SDL_WINDOWEVENT_NONE:
+            {
+              //
+              break;
+            }
+
+            case SDL_WINDOWEVENT_MOVED:
+            {
+              NOM_LOG_INFO( NOM, "SDL_WINDOWEVENT_MOVED" );
+              break;
+            }
+
+            case SDL_WINDOWEVENT_RESIZED:
+            {
+              NOM_LOG_INFO( NOM, "SDL_WINDOWEVENT_RESIZED" );
+              break;
+            }
+
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+            {
+              NOM_LOG_INFO( NOM, "SDL_WINDOWEVENT_SIZE_CHANGED" );
+              break;
+            }
+          } // end switch ev.window.event
+        } // end case SDL_WINDOWEVENT
 
         case SDL_MOUSEBUTTONDOWN:
         {

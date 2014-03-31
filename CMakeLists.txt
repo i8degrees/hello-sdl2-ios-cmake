@@ -5,15 +5,22 @@
 cmake_minimum_required( VERSION 2.8 )
 
 # CMake Environment
+set ( CMAKE_VERBOSE_MAKEFILE on CACHE PATH "Verbose Makefile" )
 set ( CMAKE_VERBOSE_MAKEFILE OFF CACHE PATH "Verbose Makefile" )
 set ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" )
 set ( CMAKE_TEMPLATE_PATH ${CMAKE_TEMPLATE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates" )
 
-option( NOM_BUILD_OSX "Toggle building for the Mac OS X platform" off )
-option( NOM_BUILD_IOS "Toggle building for the iOS platform" on )
+option( NOM_BUILD_IOS "Toggle building for the iOS platform" off )
+
+project( hello-sdl2-ios-cmake ) # $PROJECT_NAME
+
+# Needs to be checked after project init
+if( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )
+  set( NOM_PLATFORM_OSX true )
 
   # Setup the SDK selection for backwards compatibility
   if( NOM_BUILD_IOS )
+    message( STATUS "Targeting iOS" )
 
     # Override this platform and tell CMake to cross compile to iOS.
     SET( CMAKE_CROSSCOMPILING TRUE )
@@ -52,26 +59,23 @@ option( NOM_BUILD_IOS "Toggle building for the iOS platform" on )
       # is not able to compile a simple test program.
       #
       # SET( CMAKE_OSX_SYSROOT "iphoneos" )
-    ELSE()
-      MESSAGE( FATAL_ERROR "Error: iOS SDK ${SDKVER} not found at: ${SDKROOT}" )
-    ENDIF()
+    else()
+      message( FATAL_ERROR "Error: iOS SDK ${SDKVER} not found at: ${SDKROOT}" )
+    endif()
 
-  elseif( NOM_BUILD_OSX )
+  elseif( NOM_PLATFORM_OSX )
     set( SDKVER "10.8" ) # FIXME: This should be OS X v10.7
     set( DEVROOT "/Applications/Developer/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer" )
     set( SDKROOT "${DEVROOT}/SDKs/MacOSX${SDKVER}.sdk" )
 
-    IF( EXISTS ${SDKROOT} )
-      SET( CMAKE_OSX_SYSROOT "${SDKROOT}" )
+    if( EXISTS ${SDKROOT} )
+      set( CMAKE_OSX_SYSROOT "${SDKROOT}" )
       set( CMAKE_OSX_DEPLOYMENT_TARGET "${SDKVER}" )
       set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${SDKVER}" )
-    ELSE()
-      MESSAGE( FATAL_ERROR "Error: Mac OS X SDK ${SDKVER} not found at: ${SDKROOT}" )
-    ENDIF()
+    else()
+      message( FATAL_ERROR "Error: Mac OS X SDK ${SDKVER} not found at: ${SDKROOT}" )
+    endif()
   endif( NOM_BUILD_IOS )
-
-if ( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )
-  set( NOM_PLATFORM_OSX true )
 
   # libc++ requires OSX v10.7+
   set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++" )
@@ -83,12 +87,11 @@ if ( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )
 
   if( NOM_BUILD_IOS )
     message( STATUS "Platform: iOS" )
-  elseif( NOM_BUILD_OSX )
+  else( NOT NOM_BUILD_IOS )
     message( STATUS "Platform: Darwin (Mac OS X)" )
   endif( NOM_BUILD_IOS )
-endif( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )
 
-project( hello-sdl2-ios-cmake ) # $PROJECT_NAME
+endif( CMAKE_SYSTEM_NAME STREQUAL "Darwin" )
 
 set ( SRC_DIR "${PROJECT_SOURCE_DIR}/src" )
 
@@ -131,30 +134,33 @@ if( NOM_BUILD_IOS )
         "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/ios/SDL2_ttf/include"
       )
 
-elseif( NOM_BUILD_OSX )
+elseif( NOM_PLATFORM_OSX )
+
+  set ( FRAMEWORKS
+        Foundation
+      )
 
   set ( EXT_DEPS
         ${EXT_DEPS}
-        "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/osx/SDL2_framework"
+        "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/osx/SDL2.framework"
         "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/osx/SDL2_image.framework"
         "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/osx/SDL2_ttf.framework"
       )
 
   set ( EXT_HEADERS
         ${EXT_HEADERS}
-        "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/osx/SDL2_framework/Headers"
+        "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/osx/SDL2.framework/Headers"
         "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/osx/SDL2_image.framework/Headers"
         "${PROJECT_SOURCE_DIR}/${EXTERNAL_DEPS_DIR}/osx/SDL2_ttf.framework/Headers"
       )
+
 endif( NOM_BUILD_IOS )
 
-if( NOM_BUILD_IOS )
+if( NOM_BUILD_IOS OR NOM_PLATFORM_OSX )
   foreach(FW ${FRAMEWORKS})
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework ${FW}")
   endforeach()
-elseif( NOM_BUILD_OSX )
-  # TODO
-endif( NOM_BUILD_IOS )
+endif( NOM_BUILD_IOS OR NOM_PLATFORM_OSX )
 
 SET_SOURCE_FILES_PROPERTIES (
                               ${PROJECT_NAME}
@@ -194,12 +200,13 @@ target_link_libraries ( ${PROJECT_NAME}
                         ${EXT_DEPS}
                       )
 
-SET_TARGET_PROPERTIES (
-                        ${PROJECT_NAME}
-                        PROPERTIES
-                        XCODE_ATTRIBUTE_SDKROOT
-                        "iphoneos"
-                      )
+if( NOM_BUILD_IOS )
+  SET_TARGET_PROPERTIES (
+                          ${PROJECT_NAME}
+                          PROPERTIES
+                          XCODE_ATTRIBUTE_SDKROOT
+                          "iphoneos"
+                        )
 
 SET_TARGET_PROPERTIES (
                         ${PROJECT_NAME}
@@ -207,6 +214,7 @@ SET_TARGET_PROPERTIES (
                         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY
                         "iPhone Developer: Jeffrey Carpenter"
                       )
+endif( NOM_BUILD_IOS )
 
 # Auto-generated source file
 configure_file  ( "${CMAKE_TEMPLATE_PATH}/platforms.hpp.in"

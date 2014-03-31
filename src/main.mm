@@ -21,7 +21,9 @@
 #include "platforms.hpp"
 
 #if defined( NOM_PLATFORM_IOS )
-  // #include <CoreServices/CoreServices.h>
+  #include <CoreFoundation/CoreFoundation.h>
+#elif defined( NOM_PLATFORM_OSX )
+  #include <CoreServices/CoreServices.h>
   #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -118,9 +120,10 @@ int main(int argc, char * argv[])
 */
 
   std::string path = resource_path("");
+  NOM_DUMP(path);
 
-  // font_file = path + "/" + "Resources/arial.ttf";
   font_file = path + "/" + "arial.ttf";
+
   NOM_DUMP( font_file );
 
   NOM_LOG_TRACE( NOM );
@@ -191,6 +194,7 @@ int main(int argc, char * argv[])
 
   #if defined( USE_SDL2_IMAGE )
     bmp_file = path + "/" + "board.png";
+
     NOM_LOG_INFO( NOM, bmp_file );
 
     if ( IMG_Init ( IMG_INIT_PNG ) != IMG_INIT_PNG )
@@ -208,8 +212,6 @@ int main(int argc, char * argv[])
       return NO;
     }
   #else
-    bmp_file = path + "/" + "board.bmp";
-    NOM_DUMP( bmp_file );
 
     img = SDL_LoadBMP( bmp_file.c_str() );
 
